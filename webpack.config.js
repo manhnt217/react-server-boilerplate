@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable no-undef */
 var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+// var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var nodeExternals = require('webpack-node-externals');
 
 var isProduction = process.env.NODE_ENV === 'production';
@@ -14,30 +14,52 @@ var clientLoaders = isProduction ? productionPluginDefine.concat([
   new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false }, sourceMap: false })
 ]) : [];
 
-var commonLoaders = [
+const rules = [
   {
-    test: /\.json$/,
-    loader: 'json-loader'
+    test: /\.js$/,
+    exclude: /(node_modules|bower_components)/,
+    use: [
+      {
+        loader: 'babel-loader',
+        options: {
+          "presets": ["@babel/preset-env", "@babel/preset-react"],
+          "plugins": ["dynamic-import-node"]
+        }
+      }
+    ]
   },
   {
-    test: /\.module\.css$/,
-    loader: require.resolve('css-loader'),
-    options: {
-      importLoaders: 1,
-      sourceMap: true,
-      modules: true,
-      getLocalIdent: require('react-dev-utils/getCSSModuleLocalIdent')
-    }
+    test: /\.json$/,
+    use: [
+      {
+        loader: 'json-loader'
+      }
+    ]
   }
-];
+  // {
+  //   test: /\.module\.css$/,
+  //   use: [
+  //     {
+  //       loader: require.resolve('style-loader'),
+  //       options: {
+  //         importLoaders: 1,
+  //         sourceMap: true,
+  //         modules: true,
+  //         getLocalIdent: require('react-dev-utils/getCSSModuleLocalIdent')
+  //       }
+  //     }
+  //   ]
+  // }
+]
 
 module.exports = [
   {
     entry: './src/server.js',
     output: {
-      path: './dist',
+      path: __dirname + '/dist',
       filename: 'server.js',
-      libraryTarget: 'commonjs2',
+      libraryTarget: 'var',
+      library: 'GenLib',
       publicPath: '/'
     },
     target: 'node',
@@ -52,51 +74,22 @@ module.exports = [
     externals: nodeExternals(),
     plugins: productionPluginDefine,
     module: {
-      loaders: [
-        {
-          test: /\.js$/,
-          loader: 'babel',
-        },
-        {
-          test: /\.json$/,
-          loader: 'json-loader'
-        },
-        {
-          test: /\.module\.css$/,
-          loader: require.resolve('css-loader'),
-          options: {
-            importLoaders: 1,
-            sourceMap: true,
-            modules: true,
-            getLocalIdent: require('react-dev-utils/getCSSModuleLocalIdent')
-          }
-        }
-      ]
+      rules: rules
     }
   },
-  {
-    entry: './src/app/browser.js',
-    output: {
-      path: './dist/assets',
-      publicPath: '/',
-      filename: 'bundle.js'
-    },
-    plugins: clientLoaders.concat([
-      new ExtractTextPlugin('index.css', {
-        allChunks: true
-      })
-    ]),
-    module: {
-      loaders: [
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          loader: 'babel'
-        }
-      ].concat(commonLoaders)
-    },
-    resolve: {
-      extensions: ['', '.js', '.jsx', '.module.css']
-    }
-  }
+  // {
+  //   entry: './src/app/browser.js',
+  //   output: {
+  //     path:  __dirname + '/dist/assets',
+  //     publicPath: '/',
+  //     filename: 'bundle.js'
+  //   },
+  //   plugins: clientLoaders,
+  //   module: {
+  //     rules: rules
+  //   },
+  //   resolve: {
+  //     extensions: ['.js', '.jsx', '.module.css']
+  //   }
+  // }
 ];
