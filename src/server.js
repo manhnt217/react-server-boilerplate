@@ -1,24 +1,15 @@
-import express from 'express';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import App from './app';
-import template from './template';
+// import App from './app';
+// import Greeting from './app/greeting';
 
-const server = express();
+// const htmlString = renderToString(<Greeting message="GGMU"></Greeting>);
 
-server.use('/assets', express.static('assets'));
+console.log(process.argv[2])
 
-server.get('/', (req, res) => {
-  const isMobile = true;
-  const initialState = { isMobile };
-  const appString = renderToString(<App {...initialState} />);
-
-  res.send(template({
-    body: appString,
-    title: 'Hello World from the server',
-    initialState: JSON.stringify(initialState)
-  }));
-});
-
-server.listen(8080);
-console.log('listening');
+import('./app/greeting').then(
+  comp => {
+    const htmlString = renderToString(React.createElement(comp.default, {message: 'GGMU'}, null));
+    console.log(htmlString)
+  }
+)

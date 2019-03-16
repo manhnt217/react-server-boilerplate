@@ -1,3 +1,5 @@
+/* eslint-disable indent */
+/* eslint-disable no-undef */
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var nodeExternals = require('webpack-node-externals');
@@ -16,6 +18,16 @@ var commonLoaders = [
   {
     test: /\.json$/,
     loader: 'json-loader'
+  },
+  {
+    test: /\.module\.css$/,
+    loader: require.resolve('css-loader'),
+    options: {
+      importLoaders: 1,
+      sourceMap: true,
+      modules: true,
+      getLocalIdent: require('react-dev-utils/getCSSModuleLocalIdent')
+    }
   }
 ];
 
@@ -43,9 +55,23 @@ module.exports = [
       loaders: [
         {
           test: /\.js$/,
-          loader: 'babel'
+          loader: 'babel',
+        },
+        {
+          test: /\.json$/,
+          loader: 'json-loader'
+        },
+        {
+          test: /\.module\.css$/,
+          loader: require.resolve('css-loader'),
+          options: {
+            importLoaders: 1,
+            sourceMap: true,
+            modules: true,
+            getLocalIdent: require('react-dev-utils/getCSSModuleLocalIdent')
+          }
         }
-      ].concat(commonLoaders)
+      ]
     }
   },
   {
@@ -66,15 +92,11 @@ module.exports = [
           test: /\.js$/,
           exclude: /node_modules/,
           loader: 'babel'
-        },
-        {
-          test: /\.scss$/,
-          loader: ExtractTextPlugin.extract('css!sass')
         }
-      ]
+      ].concat(commonLoaders)
     },
     resolve: {
-      extensions: ['', '.js', '.jsx']
+      extensions: ['', '.js', '.jsx', '.module.css']
     }
   }
 ];
